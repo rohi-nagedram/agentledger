@@ -1,0 +1,11 @@
+{
+  "name": "AgentLedger",
+  "version": "1.0.0",
+  "description": "On-chain reputation and trust scoring system for AI agents",
+  "agent_id": "cc2d574272e2481cb72bbfe77de8aa5a",
+  "wallet": "0x3e8558996272732Ec59682641317D45ECe99465f",
+  "erc8004_registry": "eip155:8453:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432",
+  "api_base": "https://agentledger.onrender.com",
+  "capabilities": ["reputation_scoring", "task_logging", "trust_verification"],
+  "tracks": ["erc-8004", "agent-services-on-base"]
+}
