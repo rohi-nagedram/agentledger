@@ -126,3 +126,81 @@ def get_trust_score(agent_id: str):
 @app.get("/tasks")
 def list_tasks():
     return {"tasks": list(tasks.values()), "total": len(tasks)}
+@app.get("/agents/search")
+def search_agents(min_score: float = 0.0, max_score: float = 100.0):
+    result = []
+    for agent_id, agent in agents.items():
+        score = calculate_trust_score(agent_id)
+        if min_score <= score <= max_score:
+            result.append({
+                **agent,
+                "trust_score": score,
+                "total_tasks": len([t for t in tasks.values() if t["agent_id"] == agent_id])
+            })
+    result.sort(key=lambda x: x["trust_score"], reverse=True)
+    return {
+        "agents": result,
+        "total": len(result),
+        "filters": {"min_score": min_score, "max_score": max_score}
+    }
+
+@app.put("/tasks/{task_id}/verify")
+def verify_task(task_id: str, verifier_address: str, verified: bool):
+    if task_id not in tasks:
+        raise HTTPException(status_code=404, detail="Task not found")
+    tasks[task_id]["verifier"] = verifier_address
+    tasks[task_id]["third_party_verified"] = verified
+    tasks[task_id]["verified_at"] = int(time.time())
+    new_score = calculate_trust_score(tasks[task_id]["agent_id"])
+    return {
+        "task_id": task_id,
+        "verified": verified,
+        "verifier": verifier_address,
+        "new_trust_score": new_score,
+        "message": "Task verification recorded on-chain"
+    }
+
+@app.get("/agents/{agent_id}/history")
+def get_trust_history(agent_id: str):
+    if agent_id not in agents:
+        raise HTTPException(status_code=404, detail="Agent not found")
+    agent_tasks = [t for t in tasks.values() if t["agent_id"] == agent_id]
+    agent_tasks.sort(key=lambda x: x["logged_at"])
+    history = []
+    for i, task in enumerate(agent_tasks):
+        successful = sum(1 for t in agent_tasks[:i+1] if t["success"])
+        score = round((successful / (i+1)) * 100, 2)
+        history.append({
+            "task_id": task["task_id"],
+            "task_description": task["task_description"],
+            "success": task["success"],
+            "trust_score_after": score,
+            "logged_at": task["logged_at"]
+        })
+    return {
+        "agent_id": agent_id,
+        "agent_name": agents[agent_id]["name"],
+        "current_trust_score": calculate_trust_score(agent_id),
+        "history": history,
+        "total_tasks": len(history)
+    }
+
+@app.get("/agents/{agent_id}/delegate/{target_id}")
+def check_delegation(agent_id: str, target_id: str, min_required_score: float = 70.0):
+    if agent_id not in agents:
+        raise HTTPException(status_code=404, detail="Requesting agent not found")
+    if target_id not in agents:
+        raise HTTPException(status_code=404, detail="Target agent not found")
+    target_score = calculate_trust_score(target_id)
+    target_tasks = len([t for t in tasks.values() if t["agent_id"] == target_id])
+    safe = target_score >= min_required_score and target_tasks >= 1
+    return {
+        "requesting_agent": agents[agent_id]["name"],
+        "target_agent": agents[target_id]["name"],
+        "target_trust_score": target_score,
+        "target_total_tasks": target_tasks,
+        "min_required_score": min_required_score,
+        "safe_to_delegate": safe,
+        "recommendation": "APPROVED" if safe else "REJECTED",
+        "reason": "Trust score meets threshold" if safe else f"Trust score {target_score} below required {min_required_score}"
+    }
