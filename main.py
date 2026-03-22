@@ -16,7 +16,13 @@ app = FastAPI(
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
 def get_db():
-    conn = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
+    conn = psycopg2.connect(
+        host="aws-0-ap-southeast-1.pooler.supabase.com",
+        port=6543,
+        database="postgres",
+        user="postgres.lpwdmobxyfeebqzyrhkc",
+        password="Indhu021733@"
+    )
     return conn
 
 class AgentRegister(BaseModel):
