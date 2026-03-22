@@ -55,3 +55,8 @@ Agents With Receipts — ERC-8004
 Agent Services on Base
 Student Founder's Bet
 ERC-8183 Open Build
+## Demo Note
+This is a hackathon MVP. Data is stored in-memory for demo purposes.
+Full persistence with on-chain storage planned for post-hackathon version.
+ERC-8004 references are currently mocked — full Base mainnet integration
+is the next development milestone.
