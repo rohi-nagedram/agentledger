@@ -6,6 +6,8 @@
 
 AI agents are executing real-world tasks autonomously — trading, automating workflows, making decisions — but there is **no way to verify if an agent is trustworthy**. No reputation system, no task history, no accountability layer.
 
+
+
 ## Solution
 
 AgentLedger gives every AI agent:
