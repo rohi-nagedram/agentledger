@@ -16,13 +16,8 @@ app = FastAPI(
 
 # Database
 def get_db():
-    conn = psycopg2.connect(
-        host="aws-0-ap-southeast-1.pooler.supabase.com",
-        port=5432,
-        database="postgres",
-        user="postgres.lpwdmobxyfeebqzyrhkc",
-        password="Indhu021733@"
-    )
+    DATABASE_URL = os.environ.get("DATABASE_URL")
+    conn = psycopg2.connect(DATABASE_URL)
     return conn
 
 # Web3 Setup - Base Sepolia Testnet
