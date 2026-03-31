@@ -18,6 +18,7 @@ app = FastAPI(
 
 def get_db():
     DATABASE_URL = os.getenv("DATABASE_URL")
+    print("DB URL:", os.getenv("DATABASE_URL"))
 
     if not DATABASE_URL:
         raise Exception("DATABASE_URL not set in environment")
